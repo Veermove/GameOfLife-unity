@@ -23,8 +23,6 @@ namespace GM
 
         public Color AliveColor;
 
-        public Color tempCol;
-
         // Matrix of dead/alive cells
         public bool[,] mainMatrix;
 

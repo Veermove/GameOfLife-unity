@@ -238,8 +238,8 @@ MonoBehaviour:
   targetFramesPerSecond: 20
   sizeX: 200
   sizeY: 100
-  DeadColor: {r: 1, g: 1, b: 1, a: 1}
-  AliveColor: {r: 0, g: 0, b: 0, a: 1}
+  DeadColor: {r: 0.5283019, g: 0.33089897, b: 0.22178711, a: 1}
+  AliveColor: {r: 0.7075472, g: 0.25031152, b: 0.25031152, a: 1}
   tempCol: {r: 0.3962264, g: 0.12148452, b: 0.12148452, a: 1}
 --- !u!4 &2089641383
 Transform:
