@@ -20,7 +20,7 @@ namespace GM
                 for (int dy = 0; dy < y; dy++)
                 {
                     next[dx,dy] = false;
-                    current[dx,dy]= main[dx,dy];
+                    current[dx,dy] = main[dx,dy];
                 }
             }
             // current = (bool[,]) main.Clone();

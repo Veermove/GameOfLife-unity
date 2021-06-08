@@ -176,7 +176,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 52
+  orthographic size: 53
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -236,11 +236,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetFramesPerSecond: 20
-  sizeX: 200
+  sizeX: 100
   sizeY: 100
-  DeadColor: {r: 0.5283019, g: 0.33089897, b: 0.22178711, a: 1}
+  DeadColor: {r: 0.23335709, g: 0.7169812, b: 0.67266357, a: 1}
   AliveColor: {r: 0.7075472, g: 0.25031152, b: 0.25031152, a: 1}
-  tempCol: {r: 0.3962264, g: 0.12148452, b: 0.12148452, a: 1}
 --- !u!4 &2089641383
 Transform:
   m_ObjectHideFlags: 0
