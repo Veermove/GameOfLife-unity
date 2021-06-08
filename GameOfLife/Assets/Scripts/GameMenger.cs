@@ -7,7 +7,6 @@ namespace GM
 {
     public class GameMenger : MonoBehaviour
     {
-        Camera MainCamera;
         public int targetFramesPerSecond;
 
         // Map objects
@@ -41,7 +40,7 @@ namespace GM
             createPlane();
         }
 
-        // Initializes mainMatirx, fills with false
+        // Initializes randomized mainMatirx
         public void createMatrix()
         {
             var Rand = new System.Random();
@@ -64,6 +63,7 @@ namespace GM
             }
         }
 
+        // Initializes all-false mainMatirx
         public void clearMatrix()
         {
             mainMatrix = new bool[sizeX, sizeY];
@@ -102,14 +102,21 @@ namespace GM
             mapRenderer.sprite = sprite;
         }
 
+        // Updates onscreen plane, calculates next generation of Dead/Alive cells
+        // if changePixel = true -> paintPixel(Vector3 mousePos) will be called
         void UpdatePlane(bool changePixel, Vector3 mousePos)
         {
+            //calculte next generatrion
             Rules temp = new Rules();
             mainMatrix = temp.updateMatrix(mainMatrix, sizeX, sizeY);
+
+            //paint given pixel
             if (changePixel)
             {
                 paintPixel(mousePos);
             }
+
+            //update onscreen plane
             Texture2D txt = new Texture2D(sizeX, sizeY);
             for (int x = 0; x < sizeX; x++)
             {
@@ -133,6 +140,8 @@ namespace GM
             mapRenderer.sprite = sprite;
         }
 
+        // Updates onscreen plane WHILE IN-GAME PAUSED, does NOT calculate next generation od Dead/Alie cells
+        // if changePixel = true -> paintPixel(Vector3 mousePos) will be called
         void UpdatePausedPlane(bool changePixel, Vector3 mousePos)
         {
             if (changePixel)
@@ -165,10 +174,9 @@ namespace GM
         // Update is called once per frame
         void Update()
         {
-
-            // Debug.Log(Camera.main.ScreenToWorldPoint(Input.mousePosition) + ", -> " + Input.mousePosition);
             bool pixelPiant = false;
             Vector3 mouse = Vector3.zero;
+
             if (Input.GetKeyDown(KeyCode.R))
             {
                 createMatrix();
@@ -208,15 +216,11 @@ namespace GM
         }
 
         // sets cell pointed by Vector3 to Alive in mainMatrix
-        // Vector3 mouse should be given by with offset +size/2
+        // Vector3 mouse should be given with offset +size/2
         public void paintPixel(Vector3 mouse)
         {
-
-            // int xPos = (int)Math.Ceiling(mouse.x + sizeX/2);
-            // int yPos = (int)Math.Ceiling(mouse.y + sizeY/2);
             int xPos = (int)(mouse.x + sizeX/2);
             int yPos = (int)(mouse.y + sizeY/2);
-            Debug.Log(xPos + "   xD " + yPos);
             if (xPos >= 0 && xPos < sizeX && yPos >= 0 && yPos < sizeY)
             {
                 if (mainMatrix[xPos, yPos])
