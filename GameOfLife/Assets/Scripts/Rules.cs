@@ -23,10 +23,6 @@ namespace GM
                     current[dx,dy] = main[dx,dy];
                 }
             }
-            // current = (bool[,]) main.Clone();
-            // next = (bool[,]) main.Clone();
-            // current = main;
-            // next = main;
             calculateNext();
             return next;
         }

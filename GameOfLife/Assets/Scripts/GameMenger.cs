@@ -76,6 +76,7 @@ namespace GM
             }
         }
 
+        // Initializes gameObjects, shows onscreen first frame
         public void createPlane()
         {
             mapObject = new GameObject("Map");
@@ -116,6 +117,34 @@ namespace GM
                 paintPixel(mousePos);
             }
 
+            //update onscreen plane
+            Texture2D txt = new Texture2D(sizeX, sizeY);
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    if(!mainMatrix[x, y])
+                    {
+                        txt.SetPixel(x, y, DeadColor);
+                    }
+                    else
+                    {
+                        txt.SetPixel(x, y, AliveColor);
+                    }
+
+                }
+            }
+            txt.filterMode = FilterMode.Point;
+            txt.Apply();
+            Rect rect = new Rect(0, 0, sizeX, sizeY);
+            Sprite sprite = Sprite.Create(txt, rect, Vector2.one * .5f, 1, 0, SpriteMeshType.FullRect);
+            mapRenderer.sprite = sprite;
+        }
+
+
+        // Updates onscreen plane WHILE PathPainting cells, does NOT calculate next generation od Dead/Alie cells
+        void UpdatePlane()
+        {
             //update onscreen plane
             Texture2D txt = new Texture2D(sizeX, sizeY);
             for (int x = 0; x < sizeX; x++)
@@ -204,6 +233,9 @@ namespace GM
                 {
                     pixelPiant = true;
                 }
+            } else if (Input.GetMouseButtonDown(1))
+            {
+                StartCoroutine(BrushPixel());
             }
             if(!wasPaused)
             {
@@ -214,6 +246,76 @@ namespace GM
                 UpdatePausedPlane(pixelPiant, mouse);
             }
         }
+
+        IEnumerator BrushPixel()
+        {
+            int prevX = 0;
+            int prevY = 0;
+            bool firstIteratrion = true;
+            while (true)
+            {
+                IntVector3 currentPos = new IntVector3(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+                // Debug.Log(currentPos.x + ", " + currentPos.y);
+                int xPos = currentPos.x + sizeX/2;
+                int yPos = currentPos.y + sizeY/2;
+
+                if (xPos >= 0 && xPos < sizeX && yPos >= 0 && yPos < sizeY)
+                {
+                    if (firstIteratrion)
+                    {
+                        firstIteratrion = false;
+                        prevX = xPos;
+                        prevY = yPos;
+                    }
+
+                    mainMatrix[xPos, yPos] = true;
+                    Queue<IntVector3> pointsAlong = AproximatePoints(xPos, yPos, prevX, prevY);
+                    while(pointsAlong.Count != 0)
+                    {
+                        IntVector3 temp = pointsAlong.Dequeue();
+                        if(temp.x >= 0 && temp.x < sizeX &&  temp.y >= 0 &&  temp.y < sizeY)
+                        {
+                            mainMatrix[temp.x, temp.y] = true;
+                        }
+                    }
+                    UpdatePlane();
+                    prevX = xPos;
+                    prevY = yPos;
+                }
+                if (Input.GetKeyUp(KeyCode.Mouse1))
+                {
+                    break;
+                }
+                yield return null;
+            }
+        }
+
+        // Aproximates points between along edge
+        public Queue<IntVector3> AproximatePoints (int curX, int curY, int prevX, int prevY)
+        {
+            Queue<IntVector3> additional = new Queue<IntVector3>();
+            if(curX == prevX && curY == prevY)
+            {
+                return additional;
+            }
+            int distance = (int)Math.Sqrt( (double)((curX - prevX) * (curX - prevX))  +  (double)((curY - prevY) * (curY - prevY)) );
+            int count = distance;
+            int d = distance / count;
+            double angle = Math.Atan2(curX - prevX, curY - prevY);
+            for (int i = 0; i < count; i++)
+            {
+                additional.Enqueue(new IntVector3((int)Math.Floor(curX + i * d * Math.Cos(angle)), (int)Math.Floor(curY + i * d * Math.Cos(angle)), 0));
+            }
+            return additional;
+        }
+
+        // Hi im trying to paint "pixels". I created Conway's game of life in Unity and i want to add a feature where you press mouse button and it's pressed you "paint" - set cells alive. So my idea was:
+        // In Update() if mouse button is pressed Start Coroutine
+        // In Corutine you have loop that sets cell pointed by Input.mousePosition to Alive-state then waits for end of frame. Loop, and by that Coroutine ends when that mouse button is released.
+        // My problem is that if you move mouse rapidly created line will not be continous, becaouse inputs form mouse from two frames will be different (far apart).
+        // Since you can take Input.mousePosition only once per frame i tried aproximating this by storing mousePosition from previous frame and calculating all points that lie on Edge betweem CurrentMousePosition and PreviousMousePosition
+        // However i was not happy with the resault.
+        // My Question is: is there a better way to prevent this un-contnous line than letting it be and then fixing it? And if not is there a better way to aproximate points that lie on Edge?
 
         // sets cell pointed by Vector3 to Alive in mainMatrix
         // Vector3 mouse should be given with offset +size/2
