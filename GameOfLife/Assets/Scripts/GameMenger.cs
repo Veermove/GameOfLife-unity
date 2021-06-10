@@ -28,6 +28,7 @@ namespace GM
         // Matrix of dead/alive cells
         public bool[,] mainMatrix;
 
+        // state of simulation: Paused or Unpaused
         bool wasPaused = false;
 
 
@@ -142,7 +143,7 @@ namespace GM
         }
 
 
-        // Updates onscreen plane WHILE PathPainting cells, does NOT calculate next generation od Dead/Alie cells
+        // Updates onscreen plane WHILE PathPainting cells, does NOT calculate next generation of Dead/Alie cells
         void UpdatePlane()
         {
             //update onscreen plane
@@ -169,7 +170,7 @@ namespace GM
             mapRenderer.sprite = sprite;
         }
 
-        // Updates onscreen plane WHILE IN-GAME PAUSED, does NOT calculate next generation od Dead/Alie cells
+        // Updates onscreen plane WHILE IN-GAME PAUSED, does NOT calculate next generation of Dead/Alie cells
         // if changePixel = true -> paintPixel(Vector3 mousePos) will be called
         void UpdatePausedPlane(bool changePixel, Vector3 mousePos)
         {
@@ -281,6 +282,8 @@ namespace GM
                             mainMatrix[(int)Math.Floor(temp.x), (int)Math.Floor(temp.y)] = true;
                         }
                     }
+
+                    // Update onscreen plane
                     UpdatePlane();
                     previous = currentPos;
                 }
@@ -323,6 +326,40 @@ namespace GM
                 }
 
             }
+        }
+
+
+        // Draws "car" onscreen
+        public void DrawCar(Vector2 car, Color CarColor)
+        {
+            //update onscreen plane
+            Texture2D txt = new Texture2D(sizeX, sizeY);
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    if(!mainMatrix[x, y])
+                    {
+                        txt.SetPixel(x, y, DeadColor);
+                    }
+                    else
+                    {
+                        txt.SetPixel(x, y, AliveColor);
+                    }
+                }
+            }
+            txt.SetPixel((int)car.x, (int)car.y, CarColor);
+            txt.filterMode = FilterMode.Point;
+            txt.Apply();
+            Rect rect = new Rect(0, 0, sizeX, sizeY);
+            Sprite sprite = Sprite.Create(txt, rect, Vector2.one * .5f, 1, 0, SpriteMeshType.FullRect);
+            mapRenderer.sprite = sprite;
+        }
+
+        // Returns mainMatrix
+        public bool[,] getMatrix()
+        {
+            return mainMatrix;
         }
     }
 

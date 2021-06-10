@@ -39,6 +39,7 @@
      <Compile Include="Assets\Scripts\GameMenger.cs" />
      <Compile Include="Assets\Scripts\Rules.cs" />
      <Compile Include="Assets\Scripts\IntVector3.cs" />
+     <Compile Include="Assets\Scripts\CarBeh.cs" />
     <Reference Include="UnityEngine">
         <HintPath>/home/veermove/Unity/Hub/Editor/2020.3.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.dll</HintPath>
     </Reference>
