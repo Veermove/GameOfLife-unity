@@ -247,41 +247,44 @@ namespace GM
             }
         }
 
+        // Coroutine that allows to brushPaint cells across multiple frames
         IEnumerator BrushPixel()
         {
-            int prevX = 0;
-            int prevY = 0;
+            Vector2 previous = Vector2.zero;
             bool firstIteratrion = true;
+            // loop that does one round every frame
             while (true)
             {
-                IntVector3 currentPos = new IntVector3(Camera.main.ScreenToWorldPoint(Input.mousePosition));
-                // Debug.Log(currentPos.x + ", " + currentPos.y);
-                int xPos = currentPos.x + sizeX/2;
-                int yPos = currentPos.y + sizeY/2;
+                // translating from Vector3 mousePositon to Vector2 MainMatrix addres
+                Vector3 transitional = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector2 currentPos = new Vector2(transitional.x, transitional.y);
+                currentPos.x += sizeX/2;
+                currentPos.y += sizeY/2;
 
-                if (xPos >= 0 && xPos < sizeX && yPos >= 0 && yPos < sizeY)
+                // if current mouse is inside "plane" set pixel poited to by mouse to alive
+                if (currentPos.x >= 0 && currentPos.x < sizeX && currentPos.y >= 0 && currentPos.y < sizeY)
                 {
                     if (firstIteratrion)
                     {
                         firstIteratrion = false;
-                        prevX = xPos;
-                        prevY = yPos;
+                        previous = currentPos;
                     }
 
-                    mainMatrix[xPos, yPos] = true;
-                    Queue<IntVector3> pointsAlong = AproximatePoints(xPos, yPos, prevX, prevY);
-                    while(pointsAlong.Count != 0)
+                    mainMatrix[(int)Math.Floor(currentPos.x), (int)Math.Floor(currentPos.y)] = true;
+
+                    // for all pixels between current mousePosition and previous mousePosition interpolate points, and set them to Alive
+                    List<Vector2> pointsAlong = AproximatePoints(previous, currentPos);
+                    foreach(Vector2 temp in pointsAlong)
                     {
-                        IntVector3 temp = pointsAlong.Dequeue();
                         if(temp.x >= 0 && temp.x < sizeX &&  temp.y >= 0 &&  temp.y < sizeY)
                         {
-                            mainMatrix[temp.x, temp.y] = true;
+                            mainMatrix[(int)Math.Floor(temp.x), (int)Math.Floor(temp.y)] = true;
                         }
                     }
                     UpdatePlane();
-                    prevX = xPos;
-                    prevY = yPos;
+                    previous = currentPos;
                 }
+                // if MouseKey is released break out of the loop and thus end Coroutine
                 if (Input.GetKeyUp(KeyCode.Mouse1))
                 {
                     break;
@@ -290,32 +293,17 @@ namespace GM
             }
         }
 
-        // Aproximates points between along edge
-        public Queue<IntVector3> AproximatePoints (int curX, int curY, int prevX, int prevY)
+        // Aproximates points given two points for from subsequent frames using interpolation
+        public List<Vector2> AproximatePoints(Vector2 current, Vector2 previous)
         {
-            Queue<IntVector3> additional = new Queue<IntVector3>();
-            if(curX == prevX && curY == prevY)
+            int resolution = 100;
+            List<Vector2> points = new List<Vector2>();
+            for (int i = 0; i < resolution; i++)
             {
-                return additional;
+                points.Add(Vector2.Lerp(previous, current, (float)i / (float)resolution));
             }
-            int distance = (int)Math.Sqrt( (double)((curX - prevX) * (curX - prevX))  +  (double)((curY - prevY) * (curY - prevY)) );
-            int count = distance;
-            int d = distance / count;
-            double angle = Math.Atan2(curX - prevX, curY - prevY);
-            for (int i = 0; i < count; i++)
-            {
-                additional.Enqueue(new IntVector3((int)Math.Floor(curX + i * d * Math.Cos(angle)), (int)Math.Floor(curY + i * d * Math.Cos(angle)), 0));
-            }
-            return additional;
+            return points;
         }
-
-        // Hi im trying to paint "pixels". I created Conway's game of life in Unity and i want to add a feature where you press mouse button and it's pressed you "paint" - set cells alive. So my idea was:
-        // In Update() if mouse button is pressed Start Coroutine
-        // In Corutine you have loop that sets cell pointed by Input.mousePosition to Alive-state then waits for end of frame. Loop, and by that Coroutine ends when that mouse button is released.
-        // My problem is that if you move mouse rapidly created line will not be continous, becaouse inputs form mouse from two frames will be different (far apart).
-        // Since you can take Input.mousePosition only once per frame i tried aproximating this by storing mousePosition from previous frame and calculating all points that lie on Edge betweem CurrentMousePosition and PreviousMousePosition
-        // However i was not happy with the resault.
-        // My Question is: is there a better way to prevent this un-contnous line than letting it be and then fixing it? And if not is there a better way to aproximate points that lie on Edge?
 
         // sets cell pointed by Vector3 to Alive in mainMatrix
         // Vector3 mouse should be given with offset +size/2
