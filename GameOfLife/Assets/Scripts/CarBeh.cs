@@ -4,9 +4,6 @@ using UnityEngine;
 using System;
 using GM;
 
-using System.IO;
-using System.Threading.Tasks;
-
 
 public class CarBeh : MonoBehaviour
 {
@@ -80,31 +77,6 @@ public class CarBeh : MonoBehaviour
                 isCarCreated = true;
                 StartCoroutine(Pathfinder());
             }
-        }
-        else if (Input.GetKeyDown(KeyCode.T))
-        {
-            char[] retVal = new char[sizeX * sizeY];
-            int iterator = 0;
-            for (int x = 0; x < sizeX; x++)
-            {
-                for (int y = 0; y < sizeY; y++)
-                {
-                    if (view[x, y])
-                    {
-                        retVal[iterator] = 'a';
-                    }
-                    else
-                    {
-                        retVal[iterator] = 'z';
-                    }
-                    iterator++;
-                }
-            }
-            string ret = new string(retVal);
-            string[] lines = new string[2];
-            lines[0] = ret;
-            lines[1] = "";
-            File.WriteAllLines("hello.txt", lines);
         }
     }
 

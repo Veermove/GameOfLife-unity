@@ -155,6 +155,8 @@ MonoBehaviour:
   targetFramesPerSecond: 30
   animationSpeed: 5
   animationProgress: 2
+  distanceFromGliders: 15
+  numberOfGliders: 5
   sizeX: 100
   sizeY: 100
   DeadColor: {r: 0.23529412, g: 0.7176471, b: 0.6745098, a: 1}

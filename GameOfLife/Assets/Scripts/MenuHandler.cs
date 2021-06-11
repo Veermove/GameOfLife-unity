@@ -14,8 +14,17 @@ public class MenuHandler : MonoBehaviour
     GameObject mapObject;
     SpriteRenderer mapRenderer;
 
+    // Dictionary with 4 gliders
     Dictionary<int, bool[,]> glidersReference;
+
+    // Minimum distance from previously generated glider
     public int distanceFromGliders = 15;
+
+    // checks if disappearing animation is started
+    bool animationStarted = false;
+
+    // Number of initially generated gliders in the background
+    public int numberOfGliders = 5;
 
 
     // Dimensions
@@ -31,8 +40,6 @@ public class MenuHandler : MonoBehaviour
     public bool[,] mainMatrix;
     public bool[,] background;
 
-    bool animationStarted = false;
-    int numberOfGliders = 5;
 
     // Start is called before the first frame update
     void Start()
@@ -78,32 +85,6 @@ public class MenuHandler : MonoBehaviour
         createPlane();
     }
 
-    //update onscreen plane
-    void updatePlane(bool[,] matrix)
-    {
-        Texture2D txt = new Texture2D(sizeX, sizeY);
-        for (int x = 0; x < sizeX; x++)
-        {
-            for (int y = 0; y < sizeY; y++)
-            {
-                if(!matrix[x, y])
-                {
-                    txt.SetPixel(x, y, DeadColor);
-                }
-                else
-                {
-                    txt.SetPixel(x, y, AliveColor);
-                }
-
-            }
-        }
-        txt.filterMode = FilterMode.Point;
-        txt.Apply();
-        Rect rect = new Rect(0, 0, sizeX, sizeY);
-        Sprite sprite = Sprite.Create(txt, rect, Vector2.one * .5f, 1, 0, SpriteMeshType.FullRect);
-        mapRenderer.sprite = sprite;
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -134,9 +115,35 @@ public class MenuHandler : MonoBehaviour
         {
             updatePlane(mainMatrix);
         }
-
     }
 
+    //update onscreen plane
+    void updatePlane(bool[,] matrix)
+    {
+        Texture2D txt = new Texture2D(sizeX, sizeY);
+        for (int x = 0; x < sizeX; x++)
+        {
+            for (int y = 0; y < sizeY; y++)
+            {
+                if(!matrix[x, y])
+                {
+                    txt.SetPixel(x, y, DeadColor);
+                }
+                else
+                {
+                    txt.SetPixel(x, y, AliveColor);
+                }
+
+            }
+        }
+        txt.filterMode = FilterMode.Point;
+        txt.Apply();
+        Rect rect = new Rect(0, 0, sizeX, sizeY);
+        Sprite sprite = Sprite.Create(txt, rect, Vector2.one * .5f, 1, 0, SpriteMeshType.FullRect);
+        mapRenderer.sprite = sprite;
+    }
+
+    // Coroutin responsible for handling evolutions after pressing MB1, disappearing animation and loading next level
     IEnumerator RulesOfLife()
     {
         int frames = 0;
@@ -148,7 +155,6 @@ public class MenuHandler : MonoBehaviour
             frames++;
             if (frames % animationSpeed == 0)
             {
-
                 if (animationY <= 0)
                 {
                     break;
@@ -165,9 +171,19 @@ public class MenuHandler : MonoBehaviour
             }
             yield return null;
         }
+        bool [,] teporal = new bool[sizeX, sizeY];
+        for (int x = 0; x < sizeX; x++)
+        {
+            for (int y = 0; y < sizeY; y++)
+            {
+                teporal[x,y] = false;
+            }
+        }
+        updatePlane(teporal);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
+    // Creates and updates BackgroundMatrix, by putting given amount of gliders
     void randomGlidersFill(int gliders)
     {
         List<Vector2> posCheck = new List<Vector2>();
@@ -191,11 +207,11 @@ public class MenuHandler : MonoBehaviour
         }
     }
 
+    // Gets glider from dictionary by glider and updates BackgroundMatrix by putting said glider at given position
     void drawGlider(int x, int y, int gliderNum)
     {
         bool[,] tempGlider;
-        Debug.Log(glidersReference.TryGetValue(gliderNum, out tempGlider));
-        // glidersReference.TryGetValue(gliderNum, out tempGlider);
+        glidersReference.TryGetValue(gliderNum, out tempGlider);
         int gliderX = 0;
         int gliderY = 0;
         for (int xDev = -1; xDev < 2; xDev++)
@@ -210,6 +226,7 @@ public class MenuHandler : MonoBehaviour
         }
     }
 
+    // Initializes dictionary and fills it with four gliders headed in four directions
     void feelGlidersDictionary()
     {
         glidersReference = new Dictionary<int, bool[,]>();
@@ -250,6 +267,7 @@ public class MenuHandler : MonoBehaviour
         mapRenderer.sprite = sprite;
     }
 
+    // Mergin two matricies, if one of the matrices is true at some X and Y, set addres X and Y to be true in returned matrix
     bool[,] mergeMatrices(bool[,] temp1, bool[,] temp2)
     {
         bool[,] retVal = new bool[sizeX, sizeY];

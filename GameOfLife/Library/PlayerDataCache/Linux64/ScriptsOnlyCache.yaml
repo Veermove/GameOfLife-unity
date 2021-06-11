@@ -40,7 +40,7 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 17084}
+      Script: {instanceID: 3830}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 157
@@ -61,9 +61,9 @@ ScriptsOnlyBuild:
     - Class: 104
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1612}
+      Script: {instanceID: 1608}
     - Class: 114
-      Script: {instanceID: 4008}
+      Script: {instanceID: 4006}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 157
@@ -385,6 +385,12 @@ ScriptsOnlyBuild:
     className: BaseInput
   - hash:
       serializedVersion: 2
+      Hash: c6ae456f7b678bf881dfabc99e5a7631
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: MenuHandler
+  - hash:
+      serializedVersion: 2
       Hash: 18c222bef9ae745ce69ddde9b74337ca
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.EventSystems
@@ -605,12 +611,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.2D.IK.Runtime.dll
     namespaceName: UnityEngine.U2D.IK
     className: FabrikSolver2D
-  - hash:
-      serializedVersion: 2
-      Hash: 22c6e25720ea60a0b5aedbd30ed601e9
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: MenuHandler
   platform: 24
   scenePathNames:
   - Assets/Scenes/Menu.unity
