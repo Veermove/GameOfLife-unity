@@ -17,8 +17,6 @@ namespace GM
         // Dimensions
         public int sizeX = 100; // X size of plane
         public int sizeY = 100; // Y size of plane
-        Rect rectangle;
-
 
         // Colors of map
         public Color DeadColor;
@@ -35,9 +33,8 @@ namespace GM
         // Start is called before the first frame update
         void Start()
         {
-            rectangle = new Rect(0, 0, sizeX, sizeY);
             Application.targetFrameRate = targetFramesPerSecond;
-            createMatrix();
+            clearMatrix();
             createPlane();
         }
 

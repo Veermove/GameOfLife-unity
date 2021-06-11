@@ -268,4 +268,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CarColor: {r: 0.5471698, g: 0.069686726, b: 0.51533765, a: 1}
-  searchAhead: 5
+  searchAhead: 3

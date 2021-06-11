@@ -4,6 +4,10 @@ using UnityEngine;
 using System;
 using GM;
 
+using System.IO;
+using System.Threading.Tasks;
+
+
 public class CarBeh : MonoBehaviour
 {
     // Information if car is already created
@@ -19,7 +23,7 @@ public class CarBeh : MonoBehaviour
     // UpperLeft, Upper, UpperRight, Left, Right, LowerLeft, Lower, LowerRight
     Dictionary<int, Vector2> UnitVectorTable;
 
-    // How many pixels/cells in front of a car are checked for sollisions
+    // How many pixels/cells in front of a car are checked for collisions
     public int searchAhead = 3;
 
     // matrix of Dead/Alive cells. Represents entire plane
@@ -61,8 +65,8 @@ public class CarBeh : MonoBehaviour
         // Update "view" matrix
         view = mainGame.getMatrix();
 
-        // If there is no car upon pressing O car is created - if other conditions are met:
-        // Mouse is positioned inside plane
+        // If there is no car upon pressing "O" and other conditions are met car is created:
+        // Other conditions: Mouse is positioned inside plane
         if (Input.GetKeyDown(KeyCode.O) && !isCarCreated)
         {
             Vector3 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
@@ -76,12 +80,36 @@ public class CarBeh : MonoBehaviour
                 isCarCreated = true;
                 StartCoroutine(Pathfinder());
             }
-
+        }
+        else if (Input.GetKeyDown(KeyCode.T))
+        {
+            char[] retVal = new char[sizeX * sizeY];
+            int iterator = 0;
+            for (int x = 0; x < sizeX; x++)
+            {
+                for (int y = 0; y < sizeY; y++)
+                {
+                    if (view[x, y])
+                    {
+                        retVal[iterator] = 'a';
+                    }
+                    else
+                    {
+                        retVal[iterator] = 'z';
+                    }
+                    iterator++;
+                }
+            }
+            string ret = new string(retVal);
+            string[] lines = new string[2];
+            lines[0] = ret;
+            lines[1] = "";
+            File.WriteAllLines("hello.txt", lines);
         }
     }
 
     // Corutine that "drives the car". Finds path, and sends carPosition to GameMenger for painting everyFrame
-    // ALso responsible for stopping the car and destroying it upon pressing P - Park
+    // Also responsible for stopping the car and destroying it upon pressing P - Park
     IEnumerator Pathfinder()
     {
 
@@ -90,7 +118,7 @@ public class CarBeh : MonoBehaviour
 
         while (true)
         {
-            // Drive randomly, at evry frame there 95% chance that car will NOT turn
+            // Drive randomly, at evry frame there is 95% chance that car will NOT make a turn
             if (changeDirection(95))
             {
                 Delta = randUnitVector(Delta);
@@ -106,6 +134,7 @@ public class CarBeh : MonoBehaviour
                 Vector2 newDirection = Vector2.zero;
                 for (int i = 0; i < 8; i++)
                 {
+                    // Make sure that new direction will not be a collision
                     UnitVectorTable.TryGetValue(i, out newDirection);
                     if (!checkForCollision(carPos + newDirection, newDirection))
                     {
@@ -113,7 +142,7 @@ public class CarBeh : MonoBehaviour
                     }
                 }
                 // if there is no way out/ car is sorrouned from all sides throw Exception
-                // Unless plane is completly full - exception shouldn't be thrown
+                // Unless plane is completly full - this shouldn't happen
                 if (newDirection == Vector2.zero)
                 {
                     throw new ArgumentException();
@@ -163,7 +192,7 @@ public class CarBeh : MonoBehaviour
     }
 
 
-    // Given positional vector returns number of cells around of point given by Vector2
+    // Given positional vector returns number of alive cells around of point given by Vector2
     int calculateAliveAround(Vector2 planned)
     {
         int x = (int)planned.x;
